@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.stats.dto.HitDto;
 import ru.practicum.stats.dto.StatsDto;
-import ru.practicum.stats.server.hit.mapper.ViewStatsMapper;
+import ru.practicum.stats.server.hit.mapper.StatsMapper;
 import ru.practicum.stats.server.hit.model.Stats;
 import ru.practicum.stats.server.hit.storage.HitStorage;
 
@@ -40,7 +40,7 @@ public class HitServiceImpl implements HitService {
             hits = hitStorage.getEndpointHits(start, end, uris);
 
         return hits.stream()
-                .map(ViewStatsMapper::toViewStatsDto)
+                .map(StatsMapper::toViewStatsDto)
                 .collect(toList());
     }
 }
