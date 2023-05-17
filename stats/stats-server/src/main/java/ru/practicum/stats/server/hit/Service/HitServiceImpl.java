@@ -16,8 +16,9 @@ import static ru.practicum.stats.server.hit.mapper.HitMapper.toEndpointHitDto;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class HitServiceImpl implements HitService{
+public class HitServiceImpl implements HitService {
     private final HitStorage hitStorage;
+
     @Override
     public HitDto createEndpointHit(HitDto endpointHitDto) {
         return toEndpointHitDto(hitStorage.save(toEndpointHit(endpointHitDto)));
