@@ -2,25 +2,41 @@ package ru.practicum.stats.server.hit.storage;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import ru.practicum.stats.server.hit.model.Hit;
 import ru.practicum.stats.server.hit.model.Stats;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
 public interface HitStorage extends JpaRepository<Hit, Integer> {
 
-    @Query(nativeQuery = true, name = "FindStatsWithUriAndNotUniqueIp")
-    List<Stats> getStatsWithNotUniqueIp(LocalDateTime start, LocalDateTime end, List<String> uris);
+    @Query("SELECT new ru.practicum.stats.server.hit.model.Stats(s.app, s.uri, COUNT(DISTINCT s.ip)) " +
+            "FROM Hits AS s " +
+            "WHERE s.timestamp BETWEEN ?1 AND ?2 " +
+            "GROUP BY s.app, s.uri " +
+            "ORDER BY COUNT(DISTINCT s.ip) DESC")
+    List<Stats> getAllStatsDistinctIp(LocalDateTime start, LocalDateTime end);
 
-    @Query(nativeQuery = true, name = "FindStatsWithUriAndUniqueIp")
-    List<Stats> getStatsWithUniqueIp(LocalDateTime start, LocalDateTime end, List<String> uris);
+    @Query("SELECT new ru.practicum.stats.server.hit.model.Stats(s.app, s.uri, COUNT(s.ip)) " +
+            "FROM Hits AS s " +
+            "WHERE s.timestamp BETWEEN ?1 AND ?2 " +
+            "GROUP BY s.app, s.uri " +
+            "ORDER BY COUNT(s.ip) DESC")
+    List<Stats> getAllStats(LocalDateTime start, LocalDateTime end);
 
-    @Query(nativeQuery = true, name = "FindAllStatsWithNotUniqueIp")
-    List<Stats> getAllStatsWithNotUniqueIp(LocalDateTime start, LocalDateTime end);
+    @Query("SELECT new ru.practicum.stats.server.hit.model.Stats(s.app, s.uri, COUNT(DISTINCT s.ip)) " +
+            "FROM Hits AS s " +
+            "WHERE s.timestamp BETWEEN ?1 AND ?2 " +
+            "AND s.uri IN (?3) " +
+            "GROUP BY s.app, s.uri " +
+            "ORDER BY COUNT(DISTINCT s.ip) DESC")
+    List<Stats> getStatsByUrisDistinctIp(LocalDateTime start, LocalDateTime end, List<String> uri);
 
-    @Query(nativeQuery = true, name = "FindAllStatsWithUniqueIp")
-    List<Stats> getAllStatsWithUniqueIp(LocalDateTime start, LocalDateTime end);
+    @Query("SELECT new ru.practicum.stats.server.hit.model.Stats(s.app, s.uri, COUNT(s.ip)) " +
+            "FROM Hits AS s " +
+            "WHERE s.timestamp BETWEEN ?1 AND ?2 " +
+            "AND s.uri IN (?3) " +
+            "GROUP BY s.app, s.uri " +
+            "ORDER BY COUNT(s.ip) DESC")
+    List<Stats> getStatsByUris(LocalDateTime start, LocalDateTime end, List<String> uri);
 }

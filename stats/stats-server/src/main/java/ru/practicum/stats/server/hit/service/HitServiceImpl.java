@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.stats.dto.HitDto;
 import ru.practicum.stats.dto.StatsDto;
 import ru.practicum.stats.server.hit.mapper.StatsMapper;
-import ru.practicum.stats.server.hit.model.Stats;
 import ru.practicum.stats.server.hit.storage.HitStorage;
 
 import java.time.LocalDateTime;
@@ -32,23 +31,26 @@ public class HitServiceImpl implements HitService {
 
     @Override
     public  List<StatsDto> getEndpointHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        List<Stats> hits;
-
-        if (uris.stream().anyMatch(uri -> uri.equals("/events"))) {
+        if (uris == null || uris.isEmpty()) {
             if (unique) {
-                hits = hitStorage.getAllStatsWithUniqueIp(start, end);
+                return hitStorage.getAllStatsDistinctIp(start, end).stream()
+                        .map(StatsMapper::toViewStatsDto)
+                        .collect(toList());
             } else {
-                hits = hitStorage.getAllStatsWithNotUniqueIp(start, end);
+                return hitStorage.getAllStats(start, end).stream()
+                        .map(StatsMapper::toViewStatsDto)
+                        .collect(toList());
             }
         } else {
             if (unique) {
-                hits = hitStorage.getStatsWithUniqueIp(start, end, uris);
+                return hitStorage.getStatsByUrisDistinctIp(start, end, uris).stream()
+                        .map(StatsMapper::toViewStatsDto)
+                        .collect(toList());
             } else {
-                hits = hitStorage.getStatsWithNotUniqueIp(start, end, uris);
+                return hitStorage.getStatsByUris(start, end, uris).stream()
+                        .map(StatsMapper::toViewStatsDto)
+                        .collect(toList());
             }
         }
-        return hits.stream()
-                .map(StatsMapper::toViewStatsDto)
-                .collect(toList());
     }
 }
