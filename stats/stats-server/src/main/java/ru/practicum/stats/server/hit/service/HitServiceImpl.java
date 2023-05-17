@@ -34,11 +34,19 @@ public class HitServiceImpl implements HitService {
     public  List<StatsDto> getEndpointHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         List<Stats> hits;
 
-        if (unique)
-            hits = hitStorage.getDistinctEndpointHits(start, end, uris);
-        else
-            hits = hitStorage.getEndpointHits(start, end, uris);
-
+        if (uris.stream().anyMatch(uri -> uri.equals("/events"))) {
+            if (unique) {
+                hits = hitStorage.getAllStatsWithUniqueIp(start, end);
+            } else {
+                hits = hitStorage.getAllStatsWithNotUniqueIp(start, end);
+            }
+        } else {
+            if (unique) {
+                hits = hitStorage.getStatsWithUniqueIp(start, end, uris);
+            } else {
+                hits = hitStorage.getStatsWithNotUniqueIp(start, end, uris);
+            }
+        }
         return hits.stream()
                 .map(StatsMapper::toViewStatsDto)
                 .collect(toList());
