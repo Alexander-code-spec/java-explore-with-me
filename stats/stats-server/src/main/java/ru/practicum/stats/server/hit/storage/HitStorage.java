@@ -26,6 +26,6 @@ public interface HitStorage extends JpaRepository<Hit, Integer> {
             + "GROUP BY hit.uri, hit.app "
             + "ORDER BY COUNT(DISTINCT hit.ip) DESC")
     List<Stats> getDistinctEndpointHits(LocalDateTime start,
-                                            LocalDateTime end,
-                                            List<String> uris);
+                                        LocalDateTime end,
+                                        List<String> uris);
 }

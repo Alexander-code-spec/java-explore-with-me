@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.AllArgsConstructor;
 import ru.practicum.stats.dto.HitDto;
 import ru.practicum.stats.dto.StatsDto;
-import ru.practicum.stats.server.hit.Service.HitService;
+import ru.practicum.stats.server.hit.service.HitService;
 
 import java.time.LocalDateTime;
 import java.util.List;
