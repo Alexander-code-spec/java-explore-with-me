@@ -20,11 +20,12 @@ public class HitController {
         return hitService.createEndpointHit(endpointHitDto);
     }
 
-    @GetMapping("/stats")
+    @GetMapping("/stats/{id}")
     public List<StatsDto> getEndpointHits(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                           @RequestParam(defaultValue = "false") boolean unique,
-                                          @RequestParam(required = false) List<String> uris) {
-        return hitService.getEndpointHits(start, end, uris, unique);
+                                          @RequestParam(required = false) List<String> uris,
+                                          @PathVariable Long id) {
+        return hitService.getEndpointHits(start, end, uris, unique, id);
     }
 }

@@ -15,10 +15,10 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HitDto {
-    Long id;
-    String ip;
-    String app;
-    String uri;
+    private Long id;
+    private String ip;
+    private String app;
+    private String uri;
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime timestamp;
+    private LocalDateTime timestamp;
 }
