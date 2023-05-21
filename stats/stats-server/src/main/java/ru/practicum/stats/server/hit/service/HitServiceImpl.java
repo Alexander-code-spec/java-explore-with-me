@@ -30,7 +30,7 @@ public class HitServiceImpl implements HitService {
     }
 
     @Override
-    public  List<StatsDto> getEndpointHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique, Long id) {
+    public  List<StatsDto> getEndpointHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         if (uris == null || uris.isEmpty()) {
             if (unique) {
                 return hitStorage.getAllStatsDistinctIp(start, end).stream()
