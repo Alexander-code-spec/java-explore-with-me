@@ -25,7 +25,7 @@ public class HitController {
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                           @RequestParam(defaultValue = "false") boolean unique,
                                           @RequestParam(required = false) List<String> uris,
-                                          @PathVariable Long id) {
+                                          @PathVariable(required = false) Long id) {
         return hitService.getEndpointHits(start, end, uris, unique, id);
     }
 }
