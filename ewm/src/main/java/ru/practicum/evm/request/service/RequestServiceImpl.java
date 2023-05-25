@@ -52,9 +52,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestDto cancelRequest(Long userId, Long requestId) {
-        var request = requestRepository.findByRequesterAndId(userId, requestId).orElseThrow(
+        Request request = requestRepository.findByRequesterAndId(userId, requestId).orElseThrow(
                 () -> new RequestNotExistException("Request#" + requestId + " does not exist"));
-        if(request.getStatus().equals(RequestStatus.CONFIRMED)){
+        if (request.getStatus().equals(RequestStatus.CONFIRMED)) {
             request.setStatus(RequestStatus.PENDING);
         } else {
             request.setStatus(RequestStatus.CANCELED);
@@ -104,15 +104,15 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public RequestUpdateResult updateRequests(Long userId, Long eventId, RequestUpdateDto requestUpdateDto) {
-        var event = eventRepository.findById(eventId).orElseThrow(
+        Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new EventNotExistException("Event#" + eventId + " does not exist"));
 
-        var result = new RequestUpdateResult();
+        RequestUpdateResult result = new RequestUpdateResult();
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) return result;
 
-        var requests = requestRepository.findAllByEventWithInitiator(userId, eventId);
-        var requestsToUpdate = requests.stream()
+        List<Request> requests = requestRepository.findAllByEventWithInitiator(userId, eventId);
+        List<Request> requestsToUpdate = requests.stream()
                 .filter(val -> requestUpdateDto.getRequestIds().contains(val.getId()))
                 .collect(toList());
 

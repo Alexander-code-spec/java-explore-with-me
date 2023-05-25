@@ -39,14 +39,14 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto saveCompilation(SavedCompilationDto savedCompilationDto) {
         List<Event> events;
 
-        if (savedCompilationDto.getEvents()!=null) {
+        if (savedCompilationDto.getEvents() != null) {
             events  = eventRepository.findAllByIdIn(savedCompilationDto.getEvents());
         } else {
             events = new ArrayList<>();
         }
 
         Compilation compilation = Compilation.builder()
-                .pinned(savedCompilationDto.getPinned()==null ? false : savedCompilationDto.getPinned())
+                .pinned(savedCompilationDto.getPinned() == null ? false : savedCompilationDto.getPinned())
                 .title(savedCompilationDto.getTitle())
                 .events(new HashSet<>(events))
                 .build();
@@ -68,13 +68,13 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation old = compilationRepository.findById(compId).orElseThrow(
                 () -> new CompilationNotExistException("Compilation does not exist"));
         List<Long> eventsIds = compilationUpdateRequest.getEvents();
-        if (eventsIds!=null) {
+        if (eventsIds != null) {
             List<Event> events = eventRepository.findAllByIdIn(compilationUpdateRequest.getEvents());
             old.setEvents(new HashSet<>(events));
         }
-        if (compilationUpdateRequest.getPinned()!=null)
+        if (compilationUpdateRequest.getPinned() != null)
             old.setPinned(compilationUpdateRequest.getPinned());
-        if (compilationUpdateRequest.getTitle()!=null)
+        if (compilationUpdateRequest.getTitle() != null)
             old.setTitle(compilationUpdateRequest.getTitle());
 
         Compilation updated = compilationRepository.save(old);
@@ -98,7 +98,7 @@ public class CompilationServiceImpl implements CompilationService {
         Root<Compilation> compilationRoot = query.from(Compilation.class);
         Predicate criteria = criteriaBuilder.conjunction();
 
-        if (pinned!=null) {
+        if (pinned != null) {
             if (pinned)
                 isPinned = criteriaBuilder.isTrue(compilationRoot.get("pinned"));
             else
