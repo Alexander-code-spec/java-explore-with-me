@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.hit.exception.StatsBadTimeException;
 import ru.practicum.hit.mapper.HitMapper;
 import ru.practicum.hit.mapper.StatsMapper;
 import ru.practicum.hit.storage.StatsStorage;
@@ -34,6 +35,8 @@ public class HitServiceImpl implements HitService {
                                   LocalDateTime end,
                                   List<String> uris,
                                   boolean unique) {
+        if (start.isAfter(end))
+            throw new StatsBadTimeException("Incorrect start or end time");
         return statsRepository.getStats(start, end, uris, unique)
                 .stream()
                 .map(viewStatsMapper::toDto)
