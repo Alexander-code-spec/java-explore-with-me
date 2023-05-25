@@ -1,24 +1,26 @@
 package ru.practicum.stats.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
+import lombok.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class HitDto {
     private Long id;
+
+    @NotNull
+    @NotBlank
     private String ip;
+
+    @NotBlank
     private String app;
+
+    @NotBlank
     private String uri;
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime timestamp;
+
+    private String timestamp;
 }
