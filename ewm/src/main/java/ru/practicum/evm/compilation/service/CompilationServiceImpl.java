@@ -14,8 +14,11 @@ import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -36,19 +39,19 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto saveCompilation(SavedCompilationDto savedCompilationDto) {
         List<Event> events;
 
-        if(savedCompilationDto.getEvents() != null) {
+        if (savedCompilationDto.getEvents()!=null) {
             events  = eventRepository.findAllByIdIn(savedCompilationDto.getEvents());
         } else {
             events = new ArrayList<>();
         }
 
-        var compilation = Compilation.builder()
-                .pinned(savedCompilationDto.getPinned()==null?false:savedCompilationDto.getPinned())
+        Compilation compilation = Compilation.builder()
+                .pinned(savedCompilationDto.getPinned()==null ? false : savedCompilationDto.getPinned())
                 .title(savedCompilationDto.getTitle())
                 .events(new HashSet<>(events))
                 .build();
 
-        var saved = compilationRepository.save(compilation);
+        Compilation saved = compilationRepository.save(compilation);
         return compilationMapper.mapToCompilationDto(saved);
     }
 
@@ -62,25 +65,25 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto updateCompilation(Long compId,
                                             CompilationUpdateRequest compilationUpdateRequest) {
-        var old = compilationRepository.findById(compId).orElseThrow(
+        Compilation old = compilationRepository.findById(compId).orElseThrow(
                 () -> new CompilationNotExistException("Compilation does not exist"));
-        var eventsIds = compilationUpdateRequest.getEvents();
-        if (eventsIds != null) {
-            var events = eventRepository.findAllByIdIn(compilationUpdateRequest.getEvents());
+        List<Long> eventsIds = compilationUpdateRequest.getEvents();
+        if (eventsIds!=null) {
+            List<Event> events = eventRepository.findAllByIdIn(compilationUpdateRequest.getEvents());
             old.setEvents(new HashSet<>(events));
         }
-        if (compilationUpdateRequest.getPinned() != null)
+        if (compilationUpdateRequest.getPinned()!=null)
             old.setPinned(compilationUpdateRequest.getPinned());
-        if (compilationUpdateRequest.getTitle() != null)
+        if (compilationUpdateRequest.getTitle()!=null)
             old.setTitle(compilationUpdateRequest.getTitle());
 
-        var updated = compilationRepository.save(old);
+        Compilation updated = compilationRepository.save(old);
         return compilationMapper.mapToCompilationDto(updated);
     }
 
     @Override
     public CompilationDto getCompilation(Long compId) {
-        var compilation = compilationRepository.findById(compId).orElseThrow(
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(
                 () -> new CompilationNotExistException("Compilation does not exist"));
         return compilationMapper.mapToCompilationDto(compilation);
     }
@@ -90,12 +93,12 @@ public class CompilationServiceImpl implements CompilationService {
                                                 Integer from,
                                                 Integer size) {
         Predicate isPinned;
-        var criteriaBuilder = entityManager.getCriteriaBuilder();
-        var query = criteriaBuilder.createQuery(Compilation.class);
-        var compilationRoot = query.from(Compilation.class);
-        var criteria = criteriaBuilder.conjunction();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Compilation> query = criteriaBuilder.createQuery(Compilation.class);
+        Root<Compilation> compilationRoot = query.from(Compilation.class);
+        Predicate criteria = criteriaBuilder.conjunction();
 
-        if (pinned != null) {
+        if (pinned!=null) {
             if (pinned)
                 isPinned = criteriaBuilder.isTrue(compilationRoot.get("pinned"));
             else
@@ -104,7 +107,7 @@ public class CompilationServiceImpl implements CompilationService {
             criteria = criteriaBuilder.and(criteria, isPinned);
         }
         query.select(compilationRoot).where(criteria);
-        var compilations = entityManager.createQuery(query)
+        List<Compilation> compilations = entityManager.createQuery(query)
                 .setFirstResult(from)
                 .setMaxResults(size)
                 .getResultList();

@@ -1,6 +1,7 @@
 package ru.practicum.evm.user.service;
 
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.evm.user.entity.User;
 import ru.practicum.evm.user.exception.NameExistException;
 import ru.practicum.evm.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -26,8 +27,8 @@ public class UserServiceImpl implements UserService {
     public UserDto saveUser(UserDto userDto) {
         if (userRepository.existsByName(userDto.getName()))
             throw new NameExistException("User with name " + userDto.getName() + " cannot be saved");
-        var user = userMapper.toUser(userDto);
-        var saved = userRepository.save(user);
+        User user = userMapper.toUser(userDto);
+        User saved = userRepository.save(user);
         return userMapper.toUserDto(saved);
     }
 
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getUsers(List<Long> ids,
                                   Integer from,
                                   Integer size) {
-        if(ids == null){
+        if (ids==null) {
             return userMapper.toUserDtos(userRepository.findAll(of(from / size, size)).toList());
         }
         return ids.isEmpty()

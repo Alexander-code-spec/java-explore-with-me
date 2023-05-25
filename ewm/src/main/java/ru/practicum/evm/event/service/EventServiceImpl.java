@@ -3,7 +3,6 @@ package ru.practicum.evm.event.service;
 import ru.practicum.evm.category.entity.Category;
 import ru.practicum.evm.category.exception.CategoryNotExistException;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.evm.event.entity.Location;
 import ru.practicum.evm.event.enums.EventState;
 import ru.practicum.evm.event.exception.EventPublishedException;
 import ru.practicum.evm.event.exception.EventWrongTimeException;
@@ -32,10 +31,8 @@ import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.EntityManager;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.*;
 
 import static ru.practicum.evm.event.enums.EventState.PUBLISHED;
@@ -285,12 +282,13 @@ public class EventServiceImpl implements EventService {
         Predicate criteria = builder.conjunction();
 
         LocalDateTime start = rangeStart == null ? null : parse(rangeStart, ofPattern(Patterns.DATE_PATTERN));
-        if(rangeStart!= null && LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(now())) {
+        if (rangeStart!= null && LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).isBefore(now())) {
             throw new EventWrongTimeException("Wrong time");
         }
+
         LocalDateTime end = rangeEnd == null ? null : parse(rangeEnd, ofPattern(Patterns.DATE_PATTERN));
 
-        if (text != null) {
+        if (text!=null) {
             criteria = builder.and(criteria, builder.or(
                     builder.like(
                             builder.lower(root.get("annotation")), "%" + text.toLowerCase() + "%"),
@@ -298,20 +296,20 @@ public class EventServiceImpl implements EventService {
                             builder.lower(root.get("description")), "%" + text.toLowerCase() + "%")));
         }
 
-        if (categories != null && categories.size() > 0)
+        if (categories!=null && categories.size() > 0)
             criteria = builder.and(criteria, root.get("category").in(categories));
 
-        if (paid != null) {
+        if (paid!=null) {
             Predicate predicate;
             if (paid) predicate = builder.isTrue(root.get("paid"));
             else predicate = builder.isFalse(root.get("paid"));
             criteria = builder.and(criteria, predicate);
         }
 
-        if (rangeEnd != null)
+        if (rangeEnd!=null)
             criteria = builder.and(criteria, builder.lessThanOrEqualTo(root.get("eventDate").as(LocalDateTime.class), end));
 
-        if (rangeStart != null)
+        if (rangeStart!=null)
             criteria = builder.and(criteria, builder.greaterThanOrEqualTo(root.get("eventDate").as(LocalDateTime.class), start));
 
         query.select(root).where(criteria).orderBy(builder.asc(root.get("eventDate")));
@@ -326,7 +324,7 @@ public class EventServiceImpl implements EventService {
                     .filter((event -> event.getConfirmedRequests() < (long) event.getParticipantLimit()))
                     .collect(toList());
 
-        if (sort != null) {
+        if (sort!=null) {
             if (EVENT_DATE.equals(sort))
                 events = events.stream()
                         .sorted(comparing(Event::getEventDate))

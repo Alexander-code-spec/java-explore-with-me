@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.evm.category.dto.CategoryDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Calendar;
 import java.util.List;
 
 import static org.springframework.data.domain.PageRequest.*;
@@ -34,8 +32,8 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto saveCategory(SavedCategoryDto savedCategoryDto) {
         if (categoryRepository.existsByName(savedCategoryDto.getName()))
             throw new NameExistException("Category with name " + savedCategoryDto.getName() + " cannot be saved");
-        var entity = categoryMapper.toCategory(savedCategoryDto);
-        var saved = categoryRepository.save(entity);
+        Category entity = categoryMapper.toCategory(savedCategoryDto);
+        Category saved = categoryRepository.save(entity);
         return categoryMapper.toCategoryDto(saved);
     }
 
@@ -43,9 +41,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
         Category saved;
-        var category = categoryRepository.findById(id).orElseThrow(
+        Category category = categoryRepository.findById(id).orElseThrow(
                 () -> new CategoryNotExistException("Category#" + id + " does not exist"));
-        if(category.getName().equals(categoryDto.getName())) {
+        if (category.getName().equals(categoryDto.getName())) {
             category.setName(categoryDto.getName());
             saved = categoryRepository.save(category);
             return categoryMapper.toCategoryDto(saved);
