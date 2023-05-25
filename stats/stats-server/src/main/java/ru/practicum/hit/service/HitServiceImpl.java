@@ -35,8 +35,6 @@ public class HitServiceImpl implements HitService {
                                   LocalDateTime end,
                                   List<String> uris,
                                   boolean unique) {
-        if (start.isAfter(LocalDateTime.now()) || end.isBefore(LocalDateTime.now()))
-            throw new StatsBadTimeException("Incorrect start or end time");
         return statsRepository.getStats(start, end, uris, unique)
                 .stream()
                 .map(viewStatsMapper::toDto)
