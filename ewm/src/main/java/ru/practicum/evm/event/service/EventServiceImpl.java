@@ -343,7 +343,7 @@ public class EventServiceImpl implements EventService {
     private List<StatsDto> getStats(String start,
                                         String end,
                                         List<String> uris) {
-        return statsClient.getStats(start, end, uris, false);
+        return statsClient.getStats(start, end, uris, false).getBody();
     }
 
     private void addView(Event event) {

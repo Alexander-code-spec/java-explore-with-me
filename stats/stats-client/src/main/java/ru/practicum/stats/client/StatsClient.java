@@ -1,59 +1,49 @@
 package ru.practicum.stats.client;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.stats.dto.HitDto;
 import ru.practicum.stats.dto.StatsDto;
-
 import java.util.List;
 
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.ResponseEntity.status;
-
 @Service
-public class StatsClient {
-    private final WebClient webClient;
+public class StatsClient{
+    private final RestTemplate template;
 
-    @Autowired
-    public StatsClient(@Value("${stats-server.url}") String serverUrl) {
-        webClient = WebClient.builder()
-                .baseUrl(serverUrl)
-                .defaultHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+    public StatsClient(@Value("${stats-server.url}") String url,
+                      RestTemplateBuilder template) {
+        this.template = template
+                .uriTemplateHandler(new DefaultUriBuilderFactory(url))
                 .build();
     }
 
-    public List<StatsDto> getStats(String start,
-                                   String end,
-                                   List<String> uris,
-                                   Boolean unique) {
-        String paramsUri = uris.stream().reduce("", (result, uri) -> result + "&uris=" + uri);
-
-        return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/stats")
-                        .queryParam("start", start)
-                        .queryParam("end", end)
-                        .queryParam(paramsUri)
-                        .queryParam("unique", unique)
-                        .build())
-                .retrieve()
-                .bodyToFlux(StatsDto.class)
-                .collectList()
-                .block();
+    public void addStats(HitDto request) {
+        template.postForEntity("/hit",
+                new HttpEntity<>(request),
+                HitDto.class);
     }
 
-    public void addStats(HitDto hitDto) {
-        webClient.post()
-                .uri("/hit")
-                .body(Mono.just(hitDto), HitDto.class)
-                .exchangeToMono(response -> response.statusCode().equals(CREATED)
-                        ? response.bodyToMono(Object.class).map(body -> status(CREATED).body(body))
-                        : response.createException().flatMap(Mono::error))
-                .block();
+    public ResponseEntity<List<StatsDto>> getStats(String start,
+                                                      String end,
+                                                      List<String> uris,
+                                                      boolean unique) {
+        return template.exchange("/stats?start={start}&end={end}&uris={uris}&unique={unique}",
+                HttpMethod.GET,
+                getHttpEntity(null),
+                new ParameterizedTypeReference<>() {
+                },
+                start, end, uris, unique);
     }
+
+    private <T> HttpEntity<T> getHttpEntity(T dto) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        return dto == null ? new HttpEntity<>(headers) : new HttpEntity<>(dto, headers);
+    }
+
 }
