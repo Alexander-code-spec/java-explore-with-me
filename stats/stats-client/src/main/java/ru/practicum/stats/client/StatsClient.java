@@ -12,7 +12,7 @@ import ru.practicum.stats.dto.StatsDto;
 import java.util.List;
 
 @Service
-public class StatsClient{
+public class StatsClient {
     private final RestTemplate template;
 
     public StatsClient(@Value("${stats-server.url}") String url,
